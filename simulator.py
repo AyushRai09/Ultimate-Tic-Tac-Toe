@@ -3,6 +3,8 @@ import random
 import signal
 import time
 import copy
+from Player1 import *
+
 
 class TimedOutExc(Exception):
 	pass
