@@ -19,10 +19,7 @@ class Random_Player():
 		#You have to implement the move function with the same signature as this
 		#Find the list of valid cells allowed
 		cells = board.find_valid_move_cells(old_move)
-		var1=cells[random.randrange(len(cells))]
-		print "Random move is:", var1, "\n"
-		return var1
-		#return cells[random.randrange(len(cells))]
+		return cells[random.randrange(len(cells))]
 
 class Manual_Player:
 	def __init__(self):
