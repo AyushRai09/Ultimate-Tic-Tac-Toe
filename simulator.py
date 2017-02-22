@@ -3,7 +3,8 @@ import random
 import signal
 import time
 import copy
-from team1 import Player1
+from team1_iterative import Player1
+# from team1 import Player1
 class TimedOutExc(Exception):
 	pass
 
