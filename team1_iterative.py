@@ -11,13 +11,12 @@ class Player1:
             self.mark = '-'
             self.oppo_mark = '-'
 
-        def utilityOfState(self,temp_board, old_move, currentMarker):
+        def utilityOfState(self,temp_board, old_move, currentMarker,baseUtility):
             bs = temp_board.block_status
             ply = self.mark
             nply = self.oppo_mark
             dash = '-'
             draw = 'd'
-
             #checking if a Game has been won or drawn or not after the current move
             #checking diagonals
 #     `        cntpd1=0 #count of playing diagonal1
@@ -77,135 +76,128 @@ class Player1:
 
 ################################################################################
 #Rules for the cell level filling.
-            row_up=0,row_down=4,col_left=0,col_right=4
+            row_up=0
+            row_down=4
+            col_left=0
+            col_right=4;
+            array_sum=0
             while(row_down<=16):
-                long_arr=temp_board(row_up:row_down)
-                overallMax=0
+                long_arr=temp_board.board_status[row_up:row_down]
+                col_left=0
+                col_right=4
                 while(col_right<=16):
+                    required_arr=[]
                     for i in range(4):
                         required_arr.append([])
                         temp_arr=long_arr[i][col_left:col_right]
                         required_arr[i]=temp_arr
-                    backslash[0]=required_arr[0][0]
-                    backslash[1]=required_arr[1][1]
-                    backslash[2]=required_arr[2][2]
-                    backslash[3]=required_arr[3][3]
-
-                    forwardslash[0]=required_arr[3][0]
-                    forwardslash[1]=required_arr[2][1]
-                    forwardslash[2]=required_arr[1][2]
-                    forwardslash[3]=required_arr[0][3]
-
+                    backslash=[]
+                    forwardslash=[]
+                    # print "long_arr:",long_arr
+                    # print "required_arr:",required_arr
                     transpose_arr=zip(*required_arr)
-                    if(backslash.count(ply)==4 || forwardslash.count(ply)==4):
-                        if(overallMax<10000):
-                            overallMax=10000
-                    else if(required_arr[0].count(ply)==required_arr[1].count(ply)==required_arr[2].count(ply)==required_arr[3].count(ply) && required_arr[0].count(ply)==4):
-                        if(overallMax<10000):
-                            overallMax=10000
-                    else if(transpose_arr[0].count(ply)==transpose_arr[1].count(ply)==transpose_arr[2].count(ply)==transpose_arr[3].count(ply) && transpose_arr[0].count(ply)==4):
-                        if(overallMax<10000):
-                            overallMax=10000
-                    else (backslash.count(nply)==4 || forwardslash.count(nply)==4):
-                        if(overallMax>-10000):
-                            overallMax=-10000
-                    else if(required_arr[0].count(nply)==required_arr[1].count(nply)==required_arr[2].count(nply)==required_arr[3].count(nply) && required_arr[0].count(nply)==4):
-                        if(overallMax>-10000):
-                            overallMax=-10000
-                    else if(transpose_arr[0].count(nply)==transpose_arr[1].count(nply)==transpose_arr[2].count(nply)==transpose_arr[3].count(nply) && transpose_arr[0].count(nply)==4):
-                        if(overallMax>-10000):
-                            overallMax=-10000
+                    # print "transpose_arr:",transpose_arr
+                    # print "\n"
+                    backslash.append(required_arr[0][0])
+                    backslash.append(required_arr[1][1])
+                    backslash.append(required_arr[2][2])
+                    backslash.append(required_arr[3][3])
+
+                    forwardslash.append(required_arr[3][0])
+                    forwardslash.append(required_arr[2][1])
+                    forwardslash.append(required_arr[1][2])
+                    forwardslash.append(required_arr[0][3])
+
+                    if(backslash.count(ply)==4 or forwardslash.count(ply)==4):
+                        array_sum+=10000
+                    if((backslash.count(nply)==3 and backslash.count(ply)==1) or (forwardslash.count(nply)==3 and forwardslash.count(ply) ==1)):
+                        array_sum+=95
+                    if((backslash.count(ply)==3 and backslash.count(nply)==0) or (forwardslash.count(ply)==3 and forwardslash.count(nply)==0)):
+                        array_sum+=90#I gave it a sum of 95 whereas for the row or column sum calculation below, I have given it 90 because filling three markers in diagonal is better than filling three in same row or column
+                    if((backslash.count(ply)==2 and backslash.count(nply)==0) or (forwardslash.count(ply)==2 and forwardslash.count(nply)==0)):
+                        array_sum+=80
+                    if((backslash.count(nply)==2 and backslash.count(ply)==1) or (forwardslash.count(nply)==2 and forwardslash.count(ply) ==1)):
+                        array_sum+=65
+                    if(backslash.count(ply)==1 or forwardslash.count(ply)==1):
+                        array_sum+=50
+                    if(backslash.count(nply)==4 or forwardslash.count(nply)==4):
+                        array_sum-=10000
+                    if((backslash.count(nply)==3 and backslash.count(ply)==0) or (forwardslash.count(nply)==3 and forwardslash.count(ply)==0)):
+                        array_sum-=90#I gave it a sum of 95 whereas for the row or column sum calculation below, I have given it 90 because filling three markers in diagonal is better than filling three in same row or column
+                    if((backslash.count(nply)==2 and backslash.count(ply)==0) or (forwardslash.count(nply)==2 and forwardslash.count(ply)==0)):
+                        array_sum-=80
 
 
-                    else if((required_arr[0].count(ply)==3 && required_arr[0].count(nply)==0 )|| (required_arr[1].count(ply)==3 && required_arr[1].count(nply)==0) || (required_arr[2].count(ply)==3 && required_arr[2].count(nply)==0 )|| (required_arr[3].count(ply)==3 && required_arr[3].count(nply)==0) ):
-                        if(overallMax<9500): #I win three
-                            overallMax=9500
-                    else if((transpose_arr[0].count(ply)==3 && transpose_arr[0].count(nply)==0 )|| (transpose_arr[1].count(ply)==3 && transpose_arr[1].count(nply)==0) || (transpose_arr[2].count(ply)==3 && transpose_arr[2].count(nply)==0 )|| (transpose_arr[3].count(ply)==3 && transpose_arr[3].count(nply)==0) ):
-                        if(overallMax<9500):
-                            overallMax=9500
-                    else if((backslash.count(ply)==3 && backslash.count(nply)==0) || (forwardslash.count(ply)==3 && forwardslash.count(nply)==0)): #three filled by my marker and the last one is dashed
-                        if(overallMax< 9500):
-                            overallMax=9500
-                    else if((required_arr[0].count(nply)==3 && required_arr[0].count(ply)==1 )|| (required_arr[1].count(nply)==3 && required_arr[1].count(ply)==1) || (required_arr[2].count(nply)==3 && required_arr[2].count(nply)==1 )|| (required_arr[3].count(nply)==3 && required_arr[3].count(ply)==1) ):
-                        if(overallMax<9200):#opponent has won three, so I disturb his pattern by filling the last one
-                            overallMax=9200
-                    else if((transpose_arr[0].count(nply)==3 && transpose_arr[0].count(ply)==1 )|| (transpose_arr[1].count(nply)==3 && transpose_arr[1].count(ply)==1) || (transpose_arr[2].count(nply)==3 && transpose_arr[2].count(ply)==1 )|| (transpose_arr[3].count(nply)==3 && transpose_arr[3].count(ply)==1) ):
-                        if(overallMax<9200):
-                            overallMax=9200
-                    else if((backslash.count(nply)==3 && backslash.count(ply)==1) || (forwardslash.count(nply)==3 && forwardslash.count(ply)==1)): #three filled by my marker and the last one is dashed
-                        if(overallMax<9200):
-                            overallMax=9200
+                    for i in range(4):
+                        if(required_arr[i].count(ply)==4 and required_arr[i].count(nply)==0): ##me winning checking the rows
+                            array_sum+=10000
+                        if(required_arr[i].count(nply)==3 and required_arr[i].count(ply)==1):
+                            array_sum+=95
+                        if(required_arr[i].count(ply)==3 and required_arr[i].count(nply)==0):
+                            array_sum+=90
+                        if(required_arr[i].count(ply)==2 and required_arr[i].count(nply)==0):
+                            if(i==1 or i==2): #if the markers found are in the middle two rows
+                                array_sum+=80
+                            else:             #if the markers found are in boundary rows
+                                array_sum+=75
+                        if(required_arr[i].count(nply)==2 and required_arr[i].count(ply)==1):
+                            array_sum+=65
+                        if(required_arr[i].count(ply)==1 and required_arr[i].count(nply)==0):
+                            array_sum+=50
+                        if(required_arr[i].count(nply)==4 and required_arr[i].count(ply)==0): ##opponent winning checking the rows
+                            array_sum-=10000
+                        if(required_arr[i].count(nply)==3 and required_arr[i].count(ply)==0):
+                            array_sum-=90
+                        if(required_arr[i].count(nply)==2 and required_arr[i].count(ply)==0):
+                            if(i==1 or i==2): #if the markers found are in the middle two rows
+                                array_sum-=80
+                            else:             #if the markers found are in boundary rows
+                                array_sum-=75
+                        if(required_arr[i].count(nply)==1 and required_arr[i].count(ply)==0):
+                            array_sum-=50
 
 
-                    else if((required_arr[0].count(nply)==3 && required_arr[0].count(ply)==0 )|| (required_arr[1].count(nply)==3 && required_arr[1].count(ply)==0) || (required_arr[2].count(nply)==3 && required_arr[2].count(ply)==0 )|| (required_arr[3].count(nply)==3 && required_arr[3].count(ply)==0) ):
-                        if(overallMax>-9500): #opponent has three
-                            overallMax=-9500
-                    else if((transpose_arr[0].count(nply)==3 && transpose_arr[0].count(ply)==0 )|| (transpose_arr[1].count(nply)==3 && transpose_arr[1].count(ply)==0) || (transpose_arr[2].count(nply)==3 && transpose_arr[2].count(ply)==0 )|| (transpose_arr[3].count(nply)==3 && transpose_arr[3].count(ply)==0) ):
-                        if(overallMax>-9500):
-                            overallMax=-9500
-                    else if((backslash.count(nply)==3 && backslash.count(ply)==0) || (forwardslash.count(nply)==3 && forwardslash.count(ply)==0)): #three filled by my marker and the last one is dashed
-                        if(overallMax>-9500):
-                            overallMax=-9500
-
-
-                    else if((backslash.count(ply)==2 && backslash.count(nply)==0) || (forwardslash.count(ply)==2 && forwardslash.count(nply)==0)): #three filled by my marker and the last one is opponent's marker
-                        if(overallMax<8500):
-                            overallMax=8500 #In the diagonal,we have got two blocks, still left to play.
-                    else if((required_arr[1].count(ply)==2 && required_arr[1].count(nply)==0) || (required_arr[2].count(ply)==2 && required_arr[2].count(nply)==0)):
-                        if(overallMax<8500):
-                            overallMax=8500
-                    else if((transpose_arr[1].count(ply)==2 && transpose_arr[1].count(nply)==0) || (transpose_arr[2].count(ply)==2 && transpose_arr[2].count(nply)==0)):
-                        if(overallMax<8500):
-                            overallMax=8500
-                    else if((required_arr[0].count(ply)==2 && required_arr[0].count(nply)==0) || (required_arr[3].count(ply)==2 && required_arr[3].count(nply)==0)):
-                        if(overallMax<8200):
-                            overallMax=8200
-                    else if((transpose_arr[0].count(ply)==2 && transpose_arr[0].count(nply)==0) || (transpose_arr[3].count(ply)==2 && transpose_arr[3].count(nply)==0)):
-                        if(overallMax<8200):
-                            overallMax=8200
-
-                    else if((backslash.count(ply)==2 && backslash.count(nply)!=0) || (forwardslash.count(ply)==2 && forwardslash.count(nply)!=0)): #three filled by my marker and the last one is opponent's marker
-                        if(overallMax<1000):
-                            overallMax=1000 #not of much importance. Actually, that diagonal is a draw
-                    # if((backslash.count(ply)==1 && backslash.count(nply)==0) || (forwardslash.count(ply)==1 && forwardslash.count(nply)==0)): #three filled by my marker and the last one is opponent's marker
-                    #     if(overallMax<6000):
-                    #         overallMax=6000#One block there with no opponent's marker, so it's still a fair deal
-                    # if((backslash.count(ply)==1 && backslash.count(nply)!=0) || (forwardslash.count(ply)==1 && forwardslash.count(nply)!=0)): #three filled by my marker and the last one is opponent's marker
-                    #     if(overallMax<1000):
-                    #         overallMax=1000 #not of much importance. Actually, that diagonal is a draw
-
-                    else if((backslash.count(ply)!=0 && backslash.count(nply)!=0) || (slash.count(ply)!=0 || slash.count(nply)!=0))
-                        if(overallMax<1000):
-                            overallMax=1000
-                    else if((required_arr[0].count(ply)!=0 && required_arr[0].count(nply)!=0 )|| (required_arr[1].count(ply)!=0 && required_arr[1].count(nply)!=0) || (required_arr[2].count(ply)!=0 && required_arr[2].count(nply)!=0 )|| (required_arr[3].count(ply)!=0 && required_arr[3].count(nply)!=0) ):
-                        if(overallMax<1000):
-                            overallMax=1000#drawn
-                    else if((transpose_arr[0].count(ply)!=0 && transpose_arr[0].count(nply)!=0 )|| (transpose_arr[1].count(ply)!=0 && transpose_arr[1].count(nply)!=0) || (transpose_arr[2].count(ply)!=0 && transpose_arr[2].count(nply)!=0 )|| (transpose_arr[3].count(ply)!=0 && transpose_arr[3].count(nply)!=0) ):
-                        if(overallMax<1000):
-                            overallMax=1000 #drwan
-                    else:
-                        overallMax=5000
+                        if(transpose_arr[i].count(ply)==4 and transpose_arr[i].count(nply)==0):#doint the above eight things for the columns
+                            array_sum+=10000
+                        if(transpose_arr[i].count(nply)==3 and transpose_arr[i].count(ply)==1):
+                            array_sum+=95
+                        if(transpose_arr[i].count(ply)==3 and transpose_arr[i].count(nply)==0):
+                            array_sum+=90
+                        if(transpose_arr[i].count(ply)==2 and transpose_arr[i].count(nply)==0):
+                            if(i==1 or i==2): #if the markers found are in the middle two rows
+                                array_sum+=80
+                            else:             #if the markers found are in boundary rows
+                                array_sum+=75
+                        if(transpose_arr[i].count(nply)==2 and transpose_arr[i].count(ply)==1):
+                            array_sum+=65
+                        if(transpose_arr[i].count(ply)==1 and transpose_arr[i].count(nply)==0):
+                            array_sum+=70
+                        if(transpose_arr[i].count(nply)==4 and transpose_arr[i].count(ply)==0):
+                            array_sum-=10000
+                        if(transpose_arr[i].count(nply)==3 and transpose_arr[i].count(ply)==0):
+                            array_sum-=90
+                        if(transpose_arr[i].count(nply)==2 and transpose_arr[i].count(ply)==0):
+                            if(i==1 or i==2): #if the markers found are in the middle two rows
+                                array_sum-=80
+                            else:             #if the markers found are in boundary rows
+                                array_sum-=75
+                        if(transpose_arr[i].count(nply)==1 and transpose_arr[i].count(ply)==0):
+                            array_sum-=50
                     col_left+=4
                     col_right+=4
+                row_up+=4;
+                row_down+=4;
+            if(array_sum>200000):
+                print "old_move:",old_move
+                while(True):
+                    print "array_sum:",array_sum
+            #print "returned utility:", array_sum-baseUtility
+            return array_sum-baseUtility
 
-                row_up+=4
-                row_down+=4
-            return overallMax        
-                    # if((required_arr[1].count(ply)==2 && required_arr[1].count(nply)!=0) || (required_arr[2].count(ply)==2 && required_arr[2].count(nply)!=0)):
-                    #     if(overallMax<1000):
-                    #         overallMax=1000 #drawn
-                    # if((transpose_arr[1].count(ply)==2 && transpose_arr[1].count(nply)!=0) || (transpose_arr[2].count(ply)==2 && transpose_arr[2].count(nply)!=0)):
-                    #     if(overallMax<1000):
-                    #         overallMax=1000 #drawn
-                    # if((required_arr[0].count(ply)==2 && required_arr[0].count(nply)!=0) || (required_arr[3].count(ply)==2 && required_arr[3].count(nply)!=0)):
-                    #     if(overallMax<1000):
-                    #         overallMax=1000 #drawn
-                    # if((transpose_arr[0].count(ply)==2 && transpose_arr[0].count(nply)!=0) || (transpose_arr[3].count(ply)==2 && transpose_arr[3].count(nply)!=0)):
-                    #     if(overallMax<1000):
-                    #         overallMax=1000 #drawn
-                    # if((backslash.count(ply)==3 && backslash.count(nply)==1) || (forwardslash.count(ply)==3 && forwardslash.count(nply)==1)): #three filled by my marker and the last one is opponent's marker
-                    #     if(overallMax<1000):
-                    #         overallMax=1000 #not of much importance. Actually, that diagonal is a draw
+                        #else: array_sum remains the same. It is a draw, basically with zero utility, neither you win nor you loose.
+
+
+
 
         def check_block_status(self,board,old_move,new_move,ply):
             x = new_move[0]/4
@@ -241,7 +233,8 @@ class Player1:
             return 'draw'
 
 
-        def minimax(self,temp_board,old_move,currentMarker,depth, alpha,beta, parentAlpha, parentBeta, bestRow, bestCol):
+        def minimax(self,temp_board,old_move,currentMarker,depth, alpha,beta, parentAlpha, parentBeta, bestRow, bestCol,baseUtility):
+            # print "hello",depth
             if(currentMarker=='x'):
                 nextMarker='o'
             else:
@@ -251,51 +244,83 @@ class Player1:
             # 	value=self.utilityOfState(temp_board, old_move, nextMarker)
             #     print depth,time.time()-self.start_time
             # 	return value , bestRow, bestCol
+            # print "DEPTH:",depth
             if(depth==self.uptoMaxDepth):
-            	value=self.utilityOfState(temp_board, old_move, nextMarker)
+            	value=self.utilityOfState(temp_board, old_move, nextMarker,baseUtility)
             	return value , bestRow, bestCol
             row=old_move[0]%4
             col=old_move[1]%4
 
             if(depth%2==0):
                 allowed_cells = temp_board.find_valid_move_cells(old_move)
+                random.shuffle(allowed_cells)
+                # if(depth==0):
+                #     print "old_move:",old_move
+                #     print "The allowed_cells are:"
+                #     print allowed_cells
                 utility = 0
                 if(len(allowed_cells)==0):
-                    value=self.utilityOfState(temp_board,old_move,currentMarker)
+                    value=self.utilityOfState(temp_board,old_move,currentMarker,baseUtility)
                     return value,bestRow,bestCol
+                beta=parentBeta    #for a max node, beta is equal to the beta of it's parent node
                 for i,j in allowed_cells:
                     new_move = [i,j];
                     temp_board.board_status[i][j] = currentMarker  #set the board index equal to your currentMarker
                     temp_block_status = temp_board.block_status
                     self.check_block_status(temp_board,old_move,new_move,currentMarker)
-                    beta=parentBeta    #for a max node, beta is equal to the beta of it's parent node
+                    if(utility>80000):
+                        print "alpha:",alpha, "beta:",beta, "utility:",utility
+                        print "DEPTH:",depth
+                        print "old_move:",old_move
+                        print "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+                        print temp_board.print_board()
+                        print "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+                        cnu=0
+                        while(True):
+                            cnu+=1
+
                     if(alpha<beta):  #only call if this condition exists, otherwise prune it. That's why in the else condition, "break" is used.
-                        utility,tempRow,tempCol = self.minimax(temp_board,new_move,nextMarker,depth+1, -100000.0, 100000.0, alpha, beta, bestRow, bestCol)
+                        utility,tempRow,tempCol = self.minimax(temp_board,new_move,nextMarker,depth+1, -100000.0, 100000.0, alpha, beta, bestRow, bestCol,baseUtility)
                         if(alpha<utility): #if the new utility is found to be more than current alpha, then of course alpha>=utility. So now, the new worst case is that alpha=utility
                             alpha=utility
                             bestRow=i  #store the best row and col coordinates.
                             bestCol=j
                     else:
-                        temp_board.board_status[i][j] = "-"
-                        temp_board.block_status = temp_block_status
+                        temp_board.board_status[i][j] = "-" #returning from recursion, so make the state as it was before.
+                        temp_board.block_status = temp_block_status #returning from recursion, so make the state as it was before.
                         break
                     temp_board.block_status = temp_block_status
                     temp_board.board_status[i][j] = '-';  #set the board index equal to your currentMarker
             	return alpha,bestRow,bestCol  # return the alpha value found among all it's children
             else :
+                # print "old_move:",old_move
                 allowed_cells=temp_board.find_valid_move_cells(old_move)
+                random.shuffle(allowed_cells)
+                # print "The allowed_cells are:"
+                # print allowed_cells
                 utility = 0
                 if(len(allowed_cells)==0):
-                    value=self.utilityOfState(temp_board,old_move,currentMarker)
+                    value=self.utilityOfState(temp_board,old_move,currentMarker,baseUtility)
                     return value,bestRow,bestCol
+                alpha=parentAlpha
                 for i,j in allowed_cells:
                     new_move = [i,j];
                     temp_board.board_status[i][j]=currentMarker
                     temp_block_status = temp_board.block_status
                     self.check_block_status(temp_board,old_move,new_move,currentMarker)
-                    alpha=parentAlpha
+                    if(utility>80000):
+                        print "alpha:",alpha, "beta:",beta, "utility:",utility
+                        print "DEPTH:",depth
+                        print "old_move:",old_move
+                        print "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+                        print temp_board.print_board()
+                        print "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+                        cnu=0
+                        while(True):
+                            print "hi"
+                            cnu+=1
                     if(alpha<beta):
-                        utility,tempRow,tempCol=self.minimax(temp_board,new_move,nextMarker, depth+1, -100000.0, 100000.0, alpha, beta, bestRow, bestCol)
+                        utility,tempRow,tempCol=self.minimax(temp_board,new_move,nextMarker, depth+1, -100000.0, 100000.0, alpha, beta, bestRow, bestCol,baseUtility)
                         if(beta>utility):
                             beta=utility
                             bestRow=i
@@ -309,6 +334,7 @@ class Player1:
                 return beta,bestRow,bestCol
 
         def move(self,board,old_move,currentMarker):
+            # print "move"
             if old_move == (-1,-1):
                 return (5,5)
             self.mark = currentMarker
@@ -327,8 +353,10 @@ class Player1:
                 # self.uptoMaxDepth+=1
                 # bestRow = tempRow
                 # bestCol = tempCol
-            utility, tempRow,tempCol= self.minimax(temp_board, old_move, currentMarker, 0, -100000.0, 100000.0, -100000.0, 100000.0,-1,-1)
+#            print "bestRow:",bestRow,"bestCol:",bestCol
+            baseUtility=self.utilityOfState(temp_board,old_move,currentMarker,0)
+            utility, tempRow,tempCol= self.minimax(temp_board, old_move, currentMarker, 0, -100000.0, 100000.0, -100000.0, 100000.0,-1,-1,baseUtility)
 
             # print self.uptoMaxDepth
-            # print "bestRow:",bestRow,"bestCol:",bestCol
+            #print "bestRow:",bestRow,"bestCol:",bestCol
             return (tempRow,tempCol) # return the bestRow and bestCol
