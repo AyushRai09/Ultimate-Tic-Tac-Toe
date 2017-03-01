@@ -3,25 +3,6 @@ import copy
 import sys
 import time
 
-# matrix=[[0 for x in range(4)] for y in range(4)]
-# matrix[0][0]=1
-# matrix[0][1]=1
-# matrix[0][2]=1
-# matrix[0][3]=1
-# matrix[1][0]=1
-# matrix[1][1]=1
-# matrix[1][2]=1
-# matrix[1][3]=1
-# matrix[2][0]=1
-# matrix[2][1]=1
-# matrix[2][2]=1
-# matrix[2][3]=1
-# matrix[3][0]=1
-# matrix[3][1]=1
-# matrix[3][2]=1
-# matrix[3][3]=1
-
-
 class Player1:
         def __init__ (self):
             self.uptoMaxDepth = 2
@@ -356,10 +337,10 @@ class Player1:
             else:
                 nextMarker='x'
 # commented for testing purpose
-            # if((time.time() - self.start_time)>14.8):
-            # 	value=self.utilityOfState(temp_board, old_move, nextMarker)
+            if((time.time() - self.start_time)>14.8):
+             	value=self.utilityOfState(temp_board, old_move, nextMarker,baseUtility)
             #     print depth,time.time()-self.start_time
-            # 	return value , bestRow, bestCol
+             	return value , bestRow, bestCol
             # print "DEPTH:",depth
             if(depth==self.uptoMaxDepth):
             	value=self.utilityOfState(temp_board, old_move, nextMarker,baseUtility)
@@ -374,6 +355,12 @@ class Player1:
                 #     print "old_move:",old_move
                 #     print "The allowed_cells are:"
                 #     print allowed_cells
+                #     print "<<<<<<<<<<BlockState>>>>>>>>"
+                #     for i in range(4):
+            	# 		for j in range(4):
+            	# 			print temp_board.block_status[i][j],
+            	# 		print
+                #     print '======================================'
                 utility = 0
                 if(len(allowed_cells)==0):
                     value=self.utilityOfState(temp_board,old_move,currentMarker,baseUtility)
@@ -382,30 +369,19 @@ class Player1:
                 for i,j in allowed_cells:
                     new_move = [i,j];
                     temp_board.board_status[i][j] = currentMarker  #set the board index equal to your currentMarker
-                    temp_block_status = temp_board.block_status
+                    temp_block_status = copy.deepcopy(temp_board.block_status)
                     self.check_block_status(temp_board,old_move,new_move,currentMarker)
-                    # if(utility>80000):
-                    #     print "alpha:",alpha, "beta:",beta, "utility:",utility
-                    #     print "DEPTH:",depth
-                    #     print "old_move:",old_move
-                    #     print "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-                    #     print temp_board.print_board()
-                    #     print "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-                    #     cnu=0
-                    #     while(True):
-                    #         cnu+=1
-
                     if(alpha<beta):  #only call if this condition exists, otherwise prune it. That's why in the else condition, "break" is used.
-                        utility,tempRow,tempCol = self.minimax(temp_board,new_move,nextMarker,depth+1, -100000.0, 100000.0, alpha, beta, bestRow, bestCol,baseUtility)
+                        utility,tempRow,tempCol = self.minimax(temp_board,new_move,nextMarker,depth+1, -1000000000.0, 1000000000.0, alpha, beta, bestRow, bestCol,baseUtility)
                         if(alpha<utility): #if the new utility is found to be more than current alpha, then of course alpha>=utility. So now, the new worst case is that alpha=utility
                             alpha=utility
                             bestRow=i  #store the best row and col coordinates.
                             bestCol=j
                     else:
                         temp_board.board_status[i][j] = "-" #returning from recursion, so make the state as it was before.
-                        temp_board.block_status = temp_block_status #returning from recursion, so make the state as it was before.
+                        temp_board.block_status = copy.deepcopy(temp_block_status) #returning from recursion, so make the state as it was before.
                         break
-                    temp_board.block_status = temp_block_status
+                    temp_board.block_status = copy.deepcopy(temp_block_status)
                     temp_board.board_status[i][j] = '-';  #set the board index equal to your currentMarker
             	return alpha,bestRow,bestCol  # return the alpha value found among all it's children
             else :
@@ -422,30 +398,19 @@ class Player1:
                 for i,j in allowed_cells:
                     new_move = [i,j];
                     temp_board.board_status[i][j]=currentMarker
-                    temp_block_status = temp_board.block_status
+                    temp_block_status = copy.deepcopy(temp_board.block_status)
                     self.check_block_status(temp_board,old_move,new_move,currentMarker)
-                    # if(utility>80000):
-                    #     print "alpha:",alpha, "beta:",beta, "utility:",utility
-                    #     print "DEPTH:",depth
-                    #     print "old_move:",old_move
-                    #     print "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-                    #     print temp_board.print_board()
-                    #     print "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-                    #     cnu=0
-                    #     while(True):
-                    #         print "hi"
-                    #         cnu+=1
                     if(alpha<beta):
-                        utility,tempRow,tempCol=self.minimax(temp_board,new_move,nextMarker, depth+1, -100000.0, 100000.0, alpha, beta, bestRow, bestCol,baseUtility)
+                        utility,tempRow,tempCol=self.minimax(temp_board,new_move,nextMarker, depth+1, -1000000000.0, 1000000000.0, alpha, beta, bestRow, bestCol,baseUtility)
                         if(beta>utility):
                             beta=utility
                             bestRow=i
                             bestCol=j
                     else:
-                        temp_board.block_status = temp_block_status
+                        temp_board.block_status = copy.deepcopy(temp_block_status)
                         temp_board.board_status[i][j] = "-"
                         break
-                    temp_board.block_status = temp_block_status
+                    temp_board.block_status = copy.deepcopy(temp_block_status)
                     temp_board.board_status[i][j] = "-"
                 return beta,bestRow,bestCol
 
@@ -460,19 +425,25 @@ class Player1:
                 self.oppo_mark='x'
             self.start_time = time.time()
             self.uptoMaxDepth=4
-            tempRow=0
-            tempCol=0
+            temp1Row=0
+            temp1Col=0
             temp_utility=0
             temp_board=copy.deepcopy(board)   #copy the state of the board
+            flag=0
     #commented for testing purpose
-            # while ((time.time() - self.start_time)<1):
-                # self.uptoMaxDepth+=1
-                # bestRow = tempRow
-                # bestCol = tempCol
-#            print "bestRow:",bestRow,"bestCol:",bestCol
             baseUtility=self.utilityOfState(temp_board,old_move,currentMarker,0)
-            utility, tempRow,tempCol= self.minimax(temp_board, old_move, currentMarker, 0, -100000.0, 100000.0, -100000.0, 100000.0,-1,-1,baseUtility)
-
-            # print self.uptoMaxDepth
-            #print "bestRow:",bestRow,"bestCol:",bestCol
-            return (tempRow,tempCol) # return the bestRow and bestCol
+            while ((time.time() - self.start_time)<14):
+                bestRow = temp1Row
+                bestCol = temp1Col
+                utility, temp1Row,temp1Col= self.minimax(temp_board, old_move, currentMarker, 0, -1000000000.0, 1000000000.0, -1000000000.0, 1000000000.0,-1,-1,baseUtility)
+                flag+=1
+                self.uptoMaxDepth+=1
+            # utility, bestRow,bestCol= self.minimax(temp_board, old_move, currentMarker, 0, -1000000000.0, 1000000000.0, -1000000000.0, 1000000000.0,-1,-1,baseUtility)
+            if(flag>=2):
+                print "Depth",self.uptoMaxDepth
+                print "bestRow:",bestRow,"bestCol:",bestCol
+                return (bestRow,bestCol) # return the bestRow and bestCol
+            else:
+                print "Depth",self.uptoMaxDepth
+                print "tempRow:",temp1Row,"tempCol:",temp1Col
+                return (temp1Row,temp1Col)
