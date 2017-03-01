@@ -3,6 +3,25 @@ import copy
 import sys
 import time
 
+# matrix=[[0 for x in range(4)] for y in range(4)]
+# matrix[0][0]=1
+# matrix[0][1]=1
+# matrix[0][2]=1
+# matrix[0][3]=1
+# matrix[1][0]=1
+# matrix[1][1]=1
+# matrix[1][2]=1
+# matrix[1][3]=1
+# matrix[2][0]=1
+# matrix[2][1]=1
+# matrix[2][2]=1
+# matrix[2][3]=1
+# matrix[3][0]=1
+# matrix[3][1]=1
+# matrix[3][2]=1
+# matrix[3][3]=1
+
+
 class Player1:
         def __init__ (self):
             self.uptoMaxDepth = 2
@@ -11,12 +30,107 @@ class Player1:
             self.mark = '-'
             self.oppo_mark = '-'
 
+
         def utilityOfState(self,temp_board, old_move, currentMarker,baseUtility):
             bs = temp_board.block_status
             ply = self.mark
             nply = self.oppo_mark
             dash = '-'
             draw = 'd'
+#Writing heuristic values for block level
+##################################################################################
+            block_sum=0
+            #To be removed ...................
+            # This is 82 whereas same case in column and rows give 80 reward. This is so,because I am valuing diagonals to be more important than rows and columns
+            # This is 82 whereas same case in column and rows give 80 reward. This is so,because I am valuing diagonals to be more important than rows and columns
+            # This is 82 whereas same case in column and rows give 80 reward. This is so,because I am valuing diagonals to be more important than rows and columns
+            # This is 82 whereas same case in column and rows give 80 reward. This is so,because I am valuing diagonals to be more important than rows and columns
+            # This is 82 whereas same case in column and rows give 80 reward. This is so,because I am valuing diagonals to be more important than rows and columns
+            # This is 82 whereas same case in column and rows give 80 reward. This is so,because I am valuing diagonals to be more important than rows and columns
+            #To be removed.....................
+            trans_block=zip(*bs)
+            for i in range(4):
+                if(bs[i].count(ply)==4): #myself winning cases from here
+                    block_sum+=4500005
+                if(bs[i].count(nply)==3 and bs[i].count(ply)==1):
+                    block_sum+=1500001 #stopping opponent is very  important, note that it is even more important than completing my own one block
+                if(bs[i].count(ply)==3 and bs[i].count(ply)==0):
+                    block_sum+=1400000
+                if(bs[i].count(nply)==2 and bs[i].count(ply)==1):
+                    block_sum+=500000
+                if(bs[i].count(ply)==2 and bs[i].count(nply)==0):
+                    if((i==1 or i==2) and (bs[i][1]==ply and bs[i][2]==ply)):
+                        block_sum+=100000
+                    elif(i==1 or i==2):
+                        block_sum+=90000
+                    if((i==0 or i==3) and (bs[i][0]==ply and bs[i][3]==ply)):
+                        block_sum+=100000
+                    elif(i==0 or i==3):
+                        block_sum+=90000
+                if(bs[i].count(ply)==1 and (i==0 or i==3) and (bs[i][0]==ply or bs[i][3]==ply)):#this one and the next one gives extra priority
+                        block_sum+=10000 #to filling either in the diagonals or in the corneres .
+                if(bs[i].count(ply)==1 and (i==1 or i==2) and (bs[i][1]==ply or bs[i][2]==ply)):
+                        block_sum+=10000
+
+                if(bs[i].count(nply)==4): ########opponent winning cases from here
+                        block_sum-=4500005
+                if(bs[i].count(nply)==3 and bs[i].count(ply)==0):
+                        block_sum-=1400001
+                if(bs[i].count(nply)==2 and bs[i].count(ply)==0):
+                        if((i==1 or i==2) and (bs[i][1]==nply and bs[i][2]==nply)):
+                            block_sum-=100000
+                        elif(i==1 or i==2):
+                            block_sum-=90000
+                        if((i==0 or i==3) and (bs[i][0]==nply and bs[i][3]==nply)):
+                            block_sum-=100000
+                        elif(i==0 or i==3):
+                            block_sum-=90000
+                if(bs[i].count(nply)==1 and (i==0 or i==3) and(bs[i][0]==nply or bs[i][3]==nply)):
+                        block_sum-=10000
+                if(bs[i].count(nply)==1 and (i==1 or i==2) and (bs[i][0]==nply or bs[i][2]==nply)):
+                        block_sum-=10000
+
+                if(trans_block[i].count(ply)==4): #now doing the same thing as above but doing it in the columns
+                    block_sum+=4500005
+                if(trans_block[i].count(nply)==3 and trans_block[i].count(ply)==1):
+                    block_sum+=1500001 #stopping opponent is very  important, note that it is even more important than completing my own one block
+                if(trans_block[i].count(ply)==3 and trans_block[i].count(ply)==0):
+                    block_sum+=1400001
+                if(trans_block[i].count(nply)==2 and trans_block[i].count(ply)==1):
+                    block_sum+=500000
+                if(trans_block[i].count(ply)==2 and trans_block[i].count(nply)==0):
+                    if((i==1 or i==2) and (trans_block[i][1]==ply and trans_block[i][2]==ply)):
+                        block_sum+=100000
+                    elif(i==1 or i==2):
+                        block_sum+=90000
+                    if((i==0 or i==3) and (trans_block[i][0]==ply and trans_block[i][3]==ply)):
+                        block_sum+=100000
+                    elif(i==0 or i==3):
+                        block_sum+=90000
+                if(trans_block[i].count(ply)==1 and (i==0 or i==3) and (trans_block[i][0]==ply or trans_block[i][3]==ply)):#this one and the next one gives extra priority
+                        block_sum+=10000 #to filling either in the diagonals or in the corneres .
+                if(trans_block[i].count(ply)==1 and (i==1 or i==2) and (trans_block[i][1]==ply or trans_block[i][2]==ply)):
+                        block_sum+=10000
+
+                if(trans_block[i].count(nply)==4): ########opponent winning cases from here
+                        block_sum-=4500005
+                if(trans_block[i].count(nply)==3 and trans_block[i].count(ply)==0):
+                        block_sum-=1400001
+                if(trans_block[i].count(nply)==2 and trans_block[i].count(ply)==0):
+                        if((i==1 or i==2) and (trans_block[i][1]==nply and trans_block[i][2]==nply)):
+                            block_sum-=100000
+                        elif(i==1 or i==2):
+                            block_sum-=90000
+                        if((i==0 or i==3) and (trans_block[i][0]==nply and trans_block[i][3]==nply)):
+                            block_sum-=100000
+                        elif(i==0 or i==3):
+                            block_sum-=90000
+                if(trans_block[i].count(nply)==1 and (i==0 or i==3) and(trans_block[i][0]==nply or trans_block[i][3]==nply)):
+                        block_sum-=10000
+                if(trans_block[i].count(nply)==1 and (i==1 or i==2) and (trans_block[i][0]==nply or trans_block[i][2]==nply)):
+                        block_sum-=10000
+
+##################################################################################
             #checking if a Game has been won or drawn or not after the current move
             #checking diagonals
 #     `        cntpd1=0 #count of playing diagonal1
@@ -111,88 +225,90 @@ class Player1:
                     if(backslash.count(ply)==4 or forwardslash.count(ply)==4):
                         array_sum+=10000
                     if((backslash.count(nply)==3 and backslash.count(ply)==1) or (forwardslash.count(nply)==3 and forwardslash.count(ply) ==1)):
-                        array_sum+=95
+                        array_sum+=950
                     if((backslash.count(ply)==3 and backslash.count(nply)==0) or (forwardslash.count(ply)==3 and forwardslash.count(nply)==0)):
-                        array_sum+=90#I gave it a sum of 95 whereas for the row or column sum calculation below, I have given it 90 because filling three markers in diagonal is better than filling three in same row or column
+                        array_sum+=920#I gave it a sum of 950 whereas for the row or column sum calculation below, I have given it 900 because filling three markers in diagonal is better than filling three in same row or column
                     if((backslash.count(ply)==2 and backslash.count(nply)==0) or (forwardslash.count(ply)==2 and forwardslash.count(nply)==0)):
-                        array_sum+=80
+                        array_sum+=82 #This is 82 whereas same case in column and rows give 80 reward. This is so,because I am valuing diagonals to be more important than rows and columns
                     if((backslash.count(nply)==2 and backslash.count(ply)==1) or (forwardslash.count(nply)==2 and forwardslash.count(ply) ==1)):
-                        array_sum+=65
+                        array_sum+=6.5
                     if(backslash.count(ply)==1 or forwardslash.count(ply)==1):
-                        array_sum+=50
+                        array_sum+=1
                     if(backslash.count(nply)==4 or forwardslash.count(nply)==4):
                         array_sum-=10000
                     if((backslash.count(nply)==3 and backslash.count(ply)==0) or (forwardslash.count(nply)==3 and forwardslash.count(ply)==0)):
-                        array_sum-=90#I gave it a sum of 95 whereas for the row or column sum calculation below, I have given it 90 because filling three markers in diagonal is better than filling three in same row or column
+                        array_sum-=900#I gave it a sum of 95 whereas for the row or column sum calculation below, I have given it 90 because filling three markers in diagonal is better than filling three in same row or column
                     if((backslash.count(nply)==2 and backslash.count(ply)==0) or (forwardslash.count(nply)==2 and forwardslash.count(ply)==0)):
                         array_sum-=80
 
 
                     for i in range(4):
-                        if(required_arr[i].count(ply)==4 and required_arr[i].count(nply)==0): ##me winning checking the rows
+                        if(required_arr[i].count(ply)==4): ##me winning checking the rows
                             array_sum+=10000
                         if(required_arr[i].count(nply)==3 and required_arr[i].count(ply)==1):
-                            array_sum+=95
+                            array_sum+=950
                         if(required_arr[i].count(ply)==3 and required_arr[i].count(nply)==0):
-                            array_sum+=90
+                            array_sum+=900
                         if(required_arr[i].count(ply)==2 and required_arr[i].count(nply)==0):
                             if(i==1 or i==2): #if the markers found are in the middle two rows
                                 array_sum+=80
                             else:             #if the markers found are in boundary rows
                                 array_sum+=75
                         if(required_arr[i].count(nply)==2 and required_arr[i].count(ply)==1):
-                            array_sum+=65
-                        if(required_arr[i].count(ply)==1 and required_arr[i].count(nply)==0):
-                            array_sum+=50
-                        if(required_arr[i].count(nply)==4 and required_arr[i].count(ply)==0): ##opponent winning checking the rows
+                            array_sum+=6.5
+                        # if(required_arr[i].count(ply)==1 and required_arr[i].count(nply)==0):
+                        #     array_sum+=50
+                        if(required_arr[i].count(nply)==4): ##opponent winning checking the rows
                             array_sum-=10000
                         if(required_arr[i].count(nply)==3 and required_arr[i].count(ply)==0):
-                            array_sum-=90
+                            array_sum-=900
                         if(required_arr[i].count(nply)==2 and required_arr[i].count(ply)==0):
                             if(i==1 or i==2): #if the markers found are in the middle two rows
                                 array_sum-=80
                             else:             #if the markers found are in boundary rows
                                 array_sum-=75
-                        if(required_arr[i].count(nply)==1 and required_arr[i].count(ply)==0):
-                            array_sum-=50
+                        # if(required_arr[i].count(nply)==1 and required_arr[i].count(ply)==0):
+                        #     array_sum-=50
 
 
-                        if(transpose_arr[i].count(ply)==4 and transpose_arr[i].count(nply)==0):#doint the above eight things for the columns
+                        if(transpose_arr[i].count(ply)==4 and transpose_arr[i].count(nply)==0):#doing the above eight things for the columns
                             array_sum+=10000
                         if(transpose_arr[i].count(nply)==3 and transpose_arr[i].count(ply)==1):
-                            array_sum+=95
+                            array_sum+=950
                         if(transpose_arr[i].count(ply)==3 and transpose_arr[i].count(nply)==0):
-                            array_sum+=90
+                            array_sum+=900
                         if(transpose_arr[i].count(ply)==2 and transpose_arr[i].count(nply)==0):
                             if(i==1 or i==2): #if the markers found are in the middle two rows
                                 array_sum+=80
                             else:             #if the markers found are in boundary rows
                                 array_sum+=75
                         if(transpose_arr[i].count(nply)==2 and transpose_arr[i].count(ply)==1):
-                            array_sum+=65
-                        if(transpose_arr[i].count(ply)==1 and transpose_arr[i].count(nply)==0):
-                            array_sum+=70
+                            array_sum+=6.5
+                        # if(transpose_arr[i].count(ply)==1 and transpose_arr[i].count(nply)==0):
+                        #     array_sum+=70
                         if(transpose_arr[i].count(nply)==4 and transpose_arr[i].count(ply)==0):
                             array_sum-=10000
                         if(transpose_arr[i].count(nply)==3 and transpose_arr[i].count(ply)==0):
-                            array_sum-=90
+                            array_sum-=900
                         if(transpose_arr[i].count(nply)==2 and transpose_arr[i].count(ply)==0):
                             if(i==1 or i==2): #if the markers found are in the middle two rows
                                 array_sum-=80
                             else:             #if the markers found are in boundary rows
                                 array_sum-=75
-                        if(transpose_arr[i].count(nply)==1 and transpose_arr[i].count(ply)==0):
-                            array_sum-=50
+                        if(transpose_arr[i].count(nply)==2 and transpose_arr[i].count(ply)==1):
+                            array_sum-=6.5
+                        # if(transpose_arr[i].count(nply)==1 and transpose_arr[i].count(ply)==0):
+                        #     array_sum-=50
                     col_left+=4
                     col_right+=4
                 row_up+=4;
                 row_down+=4;
-            if(array_sum>200000):
-                print "old_move:",old_move
-                while(True):
-                    print "array_sum:",array_sum
+            # if(array_sum>200000):
+            #     print "old_move:",old_move
+            #     while(True):
+            #         print "array_sum:",array_sum
             #print "returned utility:", array_sum-baseUtility
-            return array_sum-baseUtility
+            return  array_sum-baseUtility
 
                         #else: array_sum remains the same. It is a draw, basically with zero utility, neither you win nor you loose.
 
@@ -268,16 +384,16 @@ class Player1:
                     temp_board.board_status[i][j] = currentMarker  #set the board index equal to your currentMarker
                     temp_block_status = temp_board.block_status
                     self.check_block_status(temp_board,old_move,new_move,currentMarker)
-                    if(utility>80000):
-                        print "alpha:",alpha, "beta:",beta, "utility:",utility
-                        print "DEPTH:",depth
-                        print "old_move:",old_move
-                        print "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-                        print temp_board.print_board()
-                        print "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-                        cnu=0
-                        while(True):
-                            cnu+=1
+                    # if(utility>80000):
+                    #     print "alpha:",alpha, "beta:",beta, "utility:",utility
+                    #     print "DEPTH:",depth
+                    #     print "old_move:",old_move
+                    #     print "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+                    #     print temp_board.print_board()
+                    #     print "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+                    #     cnu=0
+                    #     while(True):
+                    #         cnu+=1
 
                     if(alpha<beta):  #only call if this condition exists, otherwise prune it. That's why in the else condition, "break" is used.
                         utility,tempRow,tempCol = self.minimax(temp_board,new_move,nextMarker,depth+1, -100000.0, 100000.0, alpha, beta, bestRow, bestCol,baseUtility)
@@ -308,17 +424,17 @@ class Player1:
                     temp_board.board_status[i][j]=currentMarker
                     temp_block_status = temp_board.block_status
                     self.check_block_status(temp_board,old_move,new_move,currentMarker)
-                    if(utility>80000):
-                        print "alpha:",alpha, "beta:",beta, "utility:",utility
-                        print "DEPTH:",depth
-                        print "old_move:",old_move
-                        print "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-                        print temp_board.print_board()
-                        print "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-                        cnu=0
-                        while(True):
-                            print "hi"
-                            cnu+=1
+                    # if(utility>80000):
+                    #     print "alpha:",alpha, "beta:",beta, "utility:",utility
+                    #     print "DEPTH:",depth
+                    #     print "old_move:",old_move
+                    #     print "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+                    #     print temp_board.print_board()
+                    #     print "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+                    #     cnu=0
+                    #     while(True):
+                    #         print "hi"
+                    #         cnu+=1
                     if(alpha<beta):
                         utility,tempRow,tempCol=self.minimax(temp_board,new_move,nextMarker, depth+1, -100000.0, 100000.0, alpha, beta, bestRow, bestCol,baseUtility)
                         if(beta>utility):
