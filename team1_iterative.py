@@ -21,18 +21,44 @@ class Player1:
 #Writing heuristic values for block level
 ##################################################################################
             block_sum=0
-            #To be removed ...................
-            # This is 82 whereas same case in column and rows give 80 reward. This is so,because I am valuing diagonals to be more important than rows and columns
-            # This is 82 whereas same case in column and rows give 80 reward. This is so,because I am valuing diagonals to be more important than rows and columns
-            # This is 82 whereas same case in column and rows give 80 reward. This is so,because I am valuing diagonals to be more important than rows and columns
-            # This is 82 whereas same case in column and rows give 80 reward. This is so,because I am valuing diagonals to be more important than rows and columns
-            # This is 82 whereas same case in column and rows give 80 reward. This is so,because I am valuing diagonals to be more important than rows and columns
-            # This is 82 whereas same case in column and rows give 80 reward. This is so,because I am valuing diagonals to be more important than rows and columns
-            #To be removed.....................
-            trans_block=zip(*bs)
+
+            topToDown=[]
+            downToTop=[]
+            topToDown[0]=bs[0][0]
+            topToDown[1]=bs[1][1]
+            topToDown[2]=bs[2][2]
+            topToDown[3]=bs[3][3]
+
+            downToTop[0]=bs[3][0]
+            downToTop[1]=bs[2][1]
+            downToTop[2]=bs[1][2]
+            downToTop[3]=bs[0][3]
+
+            trans_block=zip(*bs) #calculating the transpose of teh orginal bs.
+
+            if(downToTop.count(ply)==4 or topToDown.count(ply)==4):
+                block_sum+=14500005
+            if((downToTop.count(nply)==3 and downToTop.count(ply)==1) or (topToDown.count(nply)==3 and topToDown.count(ply)==1)):
+                block_sum+=1500001
+            if((downToTop.count(ply)==3 and downToTop.count(nply)==0) or (topToDown.count(ply)==3 and topToDown.count(nply)==0)):
+                block_sum+=1400000
+            if((downToTop.count(ply)==2 and downToTop.count(nply)==1) or (topToDown.count(ply)==2 and topToDown.count(nply)==1)):
+                block_sum+=550000
+            if((downToTop.count(ply)==2 and downToTop.count(nply)==0) or (topToDown.count(ply)==2 and topToDown.count(nply)==0)):
+                block_sum+=150000
+
+
+            if(downToTop.count(nply)==4 or topToDown.count(nply)==4):
+                block_sum-=14500005
+            if((downToTop.count(nply)==3 and downToTop.count(ply)==0) or (topToDown.count(nply)==3 and topToDown.count(ply)==0)):
+                block_sum-=1400000
+            if((downToTop.count(nply)==2 and downToTop.count(ply)==0) or (topToDown.count(nply)==2 and topToDown.count(ply)==0)):
+                block_sum-=150000
+
+
             for i in range(4):
                 if(bs[i].count(ply)==4): #myself winning cases from here
-                    block_sum+=4500005
+                    block_sum+=14500005
                 if(bs[i].count(nply)==3 and bs[i].count(ply)==1):
                     block_sum+=1500001 #stopping opponent is very  important, note that it is even more important than completing my own one block
                 if(bs[i].count(ply)==3 and bs[i].count(ply)==0):
@@ -49,12 +75,12 @@ class Player1:
                     elif(i==0 or i==3):
                         block_sum+=90000
                 if(bs[i].count(ply)==1 and (i==0 or i==3) and (bs[i][0]==ply or bs[i][3]==ply)):#this one and the next one gives extra priority
-                        block_sum+=10000 #to filling either in the diagonals or in the corneres .
+                        block_sum+=10000 #to filling either in the diagonals or in the corners .
                 if(bs[i].count(ply)==1 and (i==1 or i==2) and (bs[i][1]==ply or bs[i][2]==ply)):
                         block_sum+=10000
 
                 if(bs[i].count(nply)==4): ########opponent winning cases from here
-                        block_sum-=4500005
+                        block_sum-=14500005
                 if(bs[i].count(nply)==3 and bs[i].count(ply)==0):
                         block_sum-=1400001
                 if(bs[i].count(nply)==2 and bs[i].count(ply)==0):
@@ -72,7 +98,7 @@ class Player1:
                         block_sum-=10000
 
                 if(trans_block[i].count(ply)==4): #now doing the same thing as above but doing it in the columns
-                    block_sum+=4500005
+                    block_sum+=14500005
                 if(trans_block[i].count(nply)==3 and trans_block[i].count(ply)==1):
                     block_sum+=1500001 #stopping opponent is very  important, note that it is even more important than completing my own one block
                 if(trans_block[i].count(ply)==3 and trans_block[i].count(ply)==0):
@@ -94,7 +120,7 @@ class Player1:
                         block_sum+=10000
 
                 if(trans_block[i].count(nply)==4): ########opponent winning cases from here
-                        block_sum-=4500005
+                        block_sum-=14500005
                 if(trans_block[i].count(nply)==3 and trans_block[i].count(ply)==0):
                         block_sum-=1400001
                 if(trans_block[i].count(nply)==2 and trans_block[i].count(ply)==0):
@@ -110,64 +136,6 @@ class Player1:
                         block_sum-=10000
                 if(trans_block[i].count(nply)==1 and (i==1 or i==2) and (trans_block[i][0]==nply or trans_block[i][2]==nply)):
                         block_sum-=10000
-
-##################################################################################
-            #checking if a Game has been won or drawn or not after the current move
-            #checking diagonals
-#     `        cntpd1=0 #count of playing diagonal1
-#             cntpd2=0 #count of playing diagonal2
-#             cntnd1=0 #count of opposite diagonal1
-#             cntnd2=0 #count of opposite diagonal2
-#             cntdd1=0 #count of dash diagonal1
-#             cntdd2=0 #count of dash diagonal2
-#             for i in range(4):						#counts the blocks won by x, o and drawn blocks
-#                 for j in range(4):
-#                     if bs[i][j] == ply:
-#                         cntpd1 += 1
-#                     if bs[3-i][j] == ply:
-#                         cntpd2 += 1
-#                     if bs[i][j] == nply:
-#                         cntnd1 += 1
-#                     if bs[3-i][j] == nply:
-#                         cntnd2 += 1
-#                     if bs[i][j] == dash:
-#                         cntdd1 += 1
-#                     if bs[3-i][j] == dash:
-#                         cntdd2 += 1
-#             for i in range(4):
-#                 row = bs[i]							#i'th row
-#                 col = [x[i] for x in bs]			#i'th column
-#                 #checking if i'th row or i'th column has been won or not
-#                 if (row.count(ply) == 4):
-#                     return 10000
-#                 if (col.count(ply) == 4):
-#                     return 10000
-#                 if (row.count(nply) == 4):
-#                     return -10000
-#                 if (col.count(nply) == 4):
-#                     return -10000
-#
-#             if(currentMarker==ply):
-#                 if (cntpd1 == 4 or cntpd2 == 4):
-#                     return 10000
-#                 if (cntnd1 == 3 or cntpd2 == 1):
-#                     return 95000
-#
-# # I don't why it's demanding such indentation! please check
-#                 for i in range(4):
-#                     row = bs[i]         #ith row
-#                     col = [x[i] for x in bs]  #ith column
-#                     if (row.count(nply)==3 and row.count(ply)==1):
-#                         return 9500
-#                     if (row.count(ply)==3 and row.count(dash)==1) :
-#                         return 9000
-#                     if (col.count(nply)==3 and col.count(ply)==1) :
-#                         return 9500
-#                     if (col.count(ply)==3 and col.count(dash)==1):
-#                         return 9000
-#             else:
-#                 if (cntnd1 == 4 or cntnd2 == 4):
-#                     return -10000
 
 ################################################################################
 #Rules for the cell level filling.
@@ -289,7 +257,7 @@ class Player1:
             #     while(True):
             #         print "array_sum:",array_sum
             #print "returned utility:", array_sum-baseUtility
-            return  array_sum-baseUtility
+            return  block_sum+array_sum-baseUtility
 
                         #else: array_sum remains the same. It is a draw, basically with zero utility, neither you win nor you loose.
 
@@ -351,16 +319,6 @@ class Player1:
             if(depth%2==0):
                 allowed_cells = temp_board.find_valid_move_cells(old_move)
                 random.shuffle(allowed_cells)
-                # if(depth==0):
-                #     print "old_move:",old_move
-                #     print "The allowed_cells are:"
-                #     print allowed_cells
-                #     print "<<<<<<<<<<BlockState>>>>>>>>"
-                #     for i in range(4):
-            	# 		for j in range(4):
-            	# 			print temp_board.block_status[i][j],
-            	# 		print
-                #     print '======================================'
                 utility = 0
                 if(len(allowed_cells)==0):
                     value=self.utilityOfState(temp_board,old_move,currentMarker,baseUtility)
@@ -385,11 +343,8 @@ class Player1:
                     temp_board.board_status[i][j] = '-';  #set the board index equal to your currentMarker
             	return alpha,bestRow,bestCol  # return the alpha value found among all it's children
             else :
-                # print "old_move:",old_move
                 allowed_cells=temp_board.find_valid_move_cells(old_move)
                 random.shuffle(allowed_cells)
-                # print "The allowed_cells are:"
-                # print allowed_cells
                 utility = 0
                 if(len(allowed_cells)==0):
                     value=self.utilityOfState(temp_board,old_move,currentMarker,baseUtility)
@@ -415,7 +370,6 @@ class Player1:
                 return beta,bestRow,bestCol
 
         def move(self,board,old_move,currentMarker):
-            # print "move"
             if old_move == (-1,-1):
                 return (5,5)
             self.mark = currentMarker
@@ -430,7 +384,6 @@ class Player1:
             temp_utility=0
             temp_board=copy.deepcopy(board)   #copy the state of the board
             flag=0
-    #commented for testing purpose
             baseUtility=self.utilityOfState(temp_board,old_move,currentMarker,0)
             while ((time.time() - self.start_time)<14):
                 bestRow = temp1Row
@@ -438,7 +391,6 @@ class Player1:
                 utility, temp1Row,temp1Col= self.minimax(temp_board, old_move, currentMarker, 0, -1000000000.0, 1000000000.0, -1000000000.0, 1000000000.0,-1,-1,baseUtility)
                 flag+=1
                 self.uptoMaxDepth+=1
-            # utility, bestRow,bestCol= self.minimax(temp_board, old_move, currentMarker, 0, -1000000000.0, 1000000000.0, -1000000000.0, 1000000000.0,-1,-1,baseUtility)
             if(flag>=2):
                 print "Depth",self.uptoMaxDepth
                 print "bestRow:",bestRow,"bestCol:",bestCol
