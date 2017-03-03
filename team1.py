@@ -350,17 +350,26 @@ class Player1:
                     new_move = [i,j];
                     temp_board.board_status[i][j] = currentMarker  #set the board index equal to your currentMarker
                     temp_block_status = copy.deepcopy(temp_board.block_status)
-                    self.check_block_status(temp_board,old_move,new_move,currentMarker)
-                    if(alpha<beta):  #only call if this condition exists, otherwise prune it. That's why in the else condition, "break" is used.
-                        utility,tempRow,tempCol = self.minimax(temp_board,new_move,nextMarker,depth+1, -1000000000.0, 1000000000.0, alpha, beta, bestRow, bestCol,baseUtility)
+                    state = "CONTINUE"
+                    if(self.check_block_status(temp_board,old_move,new_move,currentMarker) == 'win'):
+                        state = temp_board.find_terminal_state()
+                    if(state == "CONTINUE"):
+                        if(alpha<beta):  #only call if this condition exists, otherwise prune it. That's why in the else condition, "break" is used.
+                            utility,tempRow,tempCol = self.minimax(temp_board,new_move,nextMarker,depth+1, -1000000000.0, 1000000000.0, alpha, beta, bestRow, bestCol,baseUtility)
+                            if(alpha<utility): #if the new utility is found to be more than current alpha, then of course alpha>=utility. So now, the new worst case is that alpha=utility
+                                alpha=utility
+                                bestRow=i  #store the best row and col coordinates.
+                                bestCol=j
+                        else:
+                            temp_board.board_status[i][j] = "-" #returning from recursion, so make the state as it was before.
+                            temp_board.block_status = copy.deepcopy(temp_block_status) #returning from recursion, so make the state as it was before.
+                            break
+                    else:
+                        utility = self.utilityOfState(temp_board,old_move,currentMarker,baseUtility)
                         if(alpha<utility): #if the new utility is found to be more than current alpha, then of course alpha>=utility. So now, the new worst case is that alpha=utility
                             alpha=utility
                             bestRow=i  #store the best row and col coordinates.
                             bestCol=j
-                    else:
-                        temp_board.board_status[i][j] = "-" #returning from recursion, so make the state as it was before.
-                        temp_board.block_status = copy.deepcopy(temp_block_status) #returning from recursion, so make the state as it was before.
-                        break
                     temp_board.block_status = copy.deepcopy(temp_block_status)
                     temp_board.board_status[i][j] = '-';  #set the board index equal to your currentMarker
             	return alpha,bestRow,bestCol  # return the alpha value found among all it's children
@@ -376,17 +385,26 @@ class Player1:
                     new_move = [i,j];
                     temp_board.board_status[i][j]=currentMarker
                     temp_block_status = copy.deepcopy(temp_board.block_status)
-                    self.check_block_status(temp_board,old_move,new_move,currentMarker)
-                    if(alpha<beta):
-                        utility,tempRow,tempCol=self.minimax(temp_board,new_move,nextMarker, depth+1, -1000000000.0, 1000000000.0, alpha, beta, bestRow, bestCol,baseUtility)
+                    state = "CONTINUE"
+                    if(self.check_block_status(temp_board,old_move,new_move,currentMarker) == 'win'):
+                        state = temp_board.find_terminal_state()
+                    if(state == "CONTINUE"):
+                        if(alpha<beta):
+                            utility,tempRow,tempCol=self.minimax(temp_board,new_move,nextMarker, depth+1, -1000000000.0, 1000000000.0, alpha, beta, bestRow, bestCol,baseUtility)
+                            if(beta>utility):
+                                beta=utility
+                                bestRow=i
+                                bestCol=j
+                        else:
+                            temp_board.block_status = copy.deepcopy(temp_block_status)
+                            temp_board.board_status[i][j] = "-"
+                            break
+                    else:
+                        utility=self.utilityOfState(temp_board,old_move,currentMarker,baseUtility)
                         if(beta>utility):
                             beta=utility
                             bestRow=i
                             bestCol=j
-                    else:
-                        temp_board.block_status = copy.deepcopy(temp_block_status)
-                        temp_board.board_status[i][j] = "-"
-                        break
                     temp_board.block_status = copy.deepcopy(temp_block_status)
                     temp_board.board_status[i][j] = "-"
                 return beta,bestRow,bestCol
