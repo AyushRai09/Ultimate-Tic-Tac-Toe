@@ -10,6 +10,7 @@ class Player1:
             self.start_time = time.time()
             self.mark = '-'
             self.oppo_mark = '-'
+            self.originalBoard=[]
 
 
         def utilityOfState(self,temp_board, old_move, currentMarker,baseUtility):
@@ -24,15 +25,15 @@ class Player1:
 
             topToDown=[]
             downToTop=[]
-            topToDown[0]=bs[0][0]
-            topToDown[1]=bs[1][1]
-            topToDown[2]=bs[2][2]
-            topToDown[3]=bs[3][3]
+            topToDown.append(bs[0][0])
+            topToDown.append(bs[1][1])
+            topToDown.append(bs[2][2])
+            topToDown.append(bs[3][3])
 
-            downToTop[0]=bs[3][0]
-            downToTop[1]=bs[2][1]
-            downToTop[2]=bs[1][2]
-            downToTop[3]=bs[0][3]
+            downToTop.append(bs[3][0])
+            downToTop.append(bs[2][1])
+            downToTop.append(bs[1][2])
+            downToTop.append(bs[0][3])
 
             trans_block=zip(*bs) #calculating the transpose of teh orginal bs.
 
@@ -55,7 +56,6 @@ class Player1:
             if((downToTop.count(nply)==2 and downToTop.count(ply)==0) or (topToDown.count(nply)==2 and topToDown.count(ply)==0)):
                 block_sum-=150000
 
-
             for i in range(4):
                 if(bs[i].count(ply)==4): #myself winning cases from here
                     block_sum+=14500005
@@ -74,10 +74,6 @@ class Player1:
                         block_sum+=100000
                     elif(i==0 or i==3):
                         block_sum+=90000
-                if(bs[i].count(ply)==1 and (i==0 or i==3) and (bs[i][0]==ply or bs[i][3]==ply)):#this one and the next one gives extra priority
-                        block_sum+=10000 #to filling either in the diagonals or in the corners .
-                if(bs[i].count(ply)==1 and (i==1 or i==2) and (bs[i][1]==ply or bs[i][2]==ply)):
-                        block_sum+=10000
 
                 if(bs[i].count(nply)==4): ########opponent winning cases from here
                         block_sum-=14500005
@@ -92,10 +88,6 @@ class Player1:
                             block_sum-=100000
                         elif(i==0 or i==3):
                             block_sum-=90000
-                if(bs[i].count(nply)==1 and (i==0 or i==3) and(bs[i][0]==nply or bs[i][3]==nply)):
-                        block_sum-=10000
-                if(bs[i].count(nply)==1 and (i==1 or i==2) and (bs[i][0]==nply or bs[i][2]==nply)):
-                        block_sum-=10000
 
                 if(trans_block[i].count(ply)==4): #now doing the same thing as above but doing it in the columns
                     block_sum+=14500005
@@ -114,10 +106,6 @@ class Player1:
                         block_sum+=100000
                     elif(i==0 or i==3):
                         block_sum+=90000
-                if(trans_block[i].count(ply)==1 and (i==0 or i==3) and (trans_block[i][0]==ply or trans_block[i][3]==ply)):#this one and the next one gives extra priority
-                        block_sum+=10000 #to filling either in the diagonals or in the corneres .
-                if(trans_block[i].count(ply)==1 and (i==1 or i==2) and (trans_block[i][1]==ply or trans_block[i][2]==ply)):
-                        block_sum+=10000
 
                 if(trans_block[i].count(nply)==4): ########opponent winning cases from here
                         block_sum-=14500005
@@ -132,10 +120,6 @@ class Player1:
                             block_sum-=100000
                         elif(i==0 or i==3):
                             block_sum-=90000
-                if(trans_block[i].count(nply)==1 and (i==0 or i==3) and(trans_block[i][0]==nply or trans_block[i][3]==nply)):
-                        block_sum-=10000
-                if(trans_block[i].count(nply)==1 and (i==1 or i==2) and (trans_block[i][0]==nply or trans_block[i][2]==nply)):
-                        block_sum-=10000
 
 ################################################################################
 #Rules for the cell level filling.
@@ -156,6 +140,8 @@ class Player1:
                         required_arr[i]=temp_arr
                     backslash=[]
                     forwardslash=[]
+                    two1case=[]
+                    reversetwo1case=[]
                     # print "long_arr:",long_arr
                     # print "required_arr:",required_arr
                     transpose_arr=zip(*required_arr)
@@ -170,7 +156,19 @@ class Player1:
                     forwardslash.append(required_arr[2][1])
                     forwardslash.append(required_arr[1][2])
                     forwardslash.append(required_arr[0][3])
+                    #########################################################
+                    #Doing this for the two1case and three1case in the diagonals
+                    two1case.append(self.originalBoard[row_up][col_left])#Shape similar to backslash
+                    two1case.append(self.originalBoard[row_up+1][col_left+1])
+                    two1case.append(self.originalBoard[row_up+2][col_left+2])
+                    two1case.append(self.originalBoard[row_up+3][col_left+3])
 
+                    reversetwo1case.append(self.originalBoard[row_down-1][col_left])#Shape similar to forwardslash
+                    reversetwo1case.append(self.originalBoard[row_down-2][col_left+1])
+                    reversetwo1case.append(self.originalBoard[row_down-3][col_left+2])
+                    reversetwo1case.append(self.originalBoard[row_down-4][col_left+3])
+                    # print "Hello Ayush"
+                    #########################################################
                     if(backslash.count(ply)==4 or forwardslash.count(ply)==4):
                         array_sum+=10000
                     if((backslash.count(nply)==3 and backslash.count(ply)==1) or (forwardslash.count(nply)==3 and forwardslash.count(ply) ==1)):
@@ -185,10 +183,23 @@ class Player1:
                         array_sum+=1
                     if(backslash.count(nply)==4 or forwardslash.count(nply)==4):
                         array_sum-=10000
+                    if(backslash.count(ply)==3 and backslash.count(nply)==1): #Cases of mine 3, his 1 were left out earlier, now included.
+                        if(two1case.count(nply)==0):
+                            array_sum-=950
+                    if(forwardslash.count(ply)==3 and forwardslash.count(nply)==1):
+                        if(reversetwo1case.count(nply)==0):
+                            array_sum-=950
                     if((backslash.count(nply)==3 and backslash.count(ply)==0) or (forwardslash.count(nply)==3 and forwardslash.count(ply)==0)):
                         array_sum-=900#I gave it a sum of 95 whereas for the row or column sum calculation below, I have given it 90 because filling three markers in diagonal is better than filling three in same row or column
                     if((backslash.count(nply)==2 and backslash.count(ply)==0) or (forwardslash.count(nply)==2 and forwardslash.count(ply)==0)):
                         array_sum-=80
+                    if(backslash.count(ply)==2 and backslash.count(ply)==1): #Cases of mine 2, his 1 were left out earlier, now included.
+                        if(two1case.count(nply)==0):
+                            array_sum-=6.5
+                    if(forwardslash.count(ply)==2 and forwardslash.count(nply)==1):
+                        if(reversetwo1case.count(nply)==0):
+                            array_sum-=6.5
+
 
 
                     for i in range(4):
@@ -209,6 +220,9 @@ class Player1:
                         #     array_sum+=50
                         if(required_arr[i].count(nply)==4): ##opponent winning checking the rows
                             array_sum-=10000
+                        if(required_arr[i].count(ply)==3 and required_arr[i].count(nply)==1):
+                            if(self.originalBoard[row_up+i][col_left]!=nply and self.originalBoard[row_up+i][col_left+1]!=nply and self.originalBoard[row_up+i][col_left+2]!=nply and self.originalBoard[row_up+i][col_left+3]!=nply):
+                                array_sum-=950
                         if(required_arr[i].count(nply)==3 and required_arr[i].count(ply)==0):
                             array_sum-=900
                         if(required_arr[i].count(nply)==2 and required_arr[i].count(ply)==0):
@@ -216,11 +230,15 @@ class Player1:
                                 array_sum-=80
                             else:             #if the markers found are in boundary rows
                                 array_sum-=75
+                        if(required_arr[i].count(ply)==2 and required_arr[i].count(nply)==1):
+                            if(self.originalBoard[row_up+i][col_left]!=nply and self.originalBoard[row_up+i][col_left+1]!=nply and self.originalBoard[row_up+i][col_left+2]!=nply and self.originalBoard[row_up+i][col_left+3]!=nply):
+                                array_sum-=6.5
+
                         # if(required_arr[i].count(nply)==1 and required_arr[i].count(ply)==0):
                         #     array_sum-=50
 
 
-                        if(transpose_arr[i].count(ply)==4 and transpose_arr[i].count(nply)==0):#doing the above eight things for the columns
+                        if(transpose_arr[i].count(ply)==4):#doing the above eight things for the columns
                             array_sum+=10000
                         if(transpose_arr[i].count(nply)==3 and transpose_arr[i].count(ply)==1):
                             array_sum+=950
@@ -235,8 +253,11 @@ class Player1:
                             array_sum+=6.5
                         # if(transpose_arr[i].count(ply)==1 and transpose_arr[i].count(nply)==0):
                         #     array_sum+=70
-                        if(transpose_arr[i].count(nply)==4 and transpose_arr[i].count(ply)==0):
+                        if(transpose_arr[i].count(nply)==4):
                             array_sum-=10000
+                        if(transpose_arr[i].count(ply)==3 and transpose_arr.count(nply)==1):
+                            if(self.originalBoard[row_up][col_left+i]!=nply and self.originalBoard[row_up+1][col_left+i]!=nply and self.originalBoard[row_up+2][col_left+i]!=nply and self.originalBoard[row_up+3][col_lefti]!=nply):
+                                array_sum-=950
                         if(transpose_arr[i].count(nply)==3 and transpose_arr[i].count(ply)==0):
                             array_sum-=900
                         if(transpose_arr[i].count(nply)==2 and transpose_arr[i].count(ply)==0):
@@ -244,8 +265,9 @@ class Player1:
                                 array_sum-=80
                             else:             #if the markers found are in boundary rows
                                 array_sum-=75
-                        if(transpose_arr[i].count(nply)==2 and transpose_arr[i].count(ply)==1):
-                            array_sum-=6.5
+                        if(transpose_arr[i].count(ply)==2 and transpose_arr[i].count(nply)==1):
+                            if(self.originalBoard[row_up][col_left+i]!=nply and self.originalBoard[row_up+1][col_left+i]!=nply and self.originalBoard[row_up+2][col_left+i]!=nply and self.originalBoard[row_up+3][col_left+i]!=nply):
+                                array_sum-=6.5
                         # if(transpose_arr[i].count(nply)==1 and transpose_arr[i].count(ply)==0):
                         #     array_sum-=50
                     col_left+=4
@@ -383,19 +405,21 @@ class Player1:
             temp1Col=0
             temp_utility=0
             temp_board=copy.deepcopy(board)   #copy the state of the board
+            self.originalBoard=copy.deepcopy(board.board_status)
             flag=0
             baseUtility=self.utilityOfState(temp_board,old_move,currentMarker,0)
-            while ((time.time() - self.start_time)<14):
+            while ((time.time() - self.start_time)<14 and self.uptoMaxDepth<=256):
                 bestRow = temp1Row
                 bestCol = temp1Col
                 utility, temp1Row,temp1Col= self.minimax(temp_board, old_move, currentMarker, 0, -1000000000.0, 1000000000.0, -1000000000.0, 1000000000.0,-1,-1,baseUtility)
+                print "depth:",self.uptoMaxDepth,"bestRow:",temp1Row,"bestCol:",temp1Col
                 flag+=1
                 self.uptoMaxDepth+=1
             if(flag>=2):
-                print "Depth",self.uptoMaxDepth
+                print "Depth",self.uptoMaxDepth-2
                 print "bestRow:",bestRow,"bestCol:",bestCol
                 return (bestRow,bestCol) # return the bestRow and bestCol
             else:
-                print "Depth",self.uptoMaxDepth
-                print "tempRow:",temp1Row,"tempCol:",temp1Col
+                print "Depth",self.uptoMaxDepth-2
+                print "bestRow:",temp1Row,"bestCol:",temp1Col
                 return (temp1Row,temp1Col)
