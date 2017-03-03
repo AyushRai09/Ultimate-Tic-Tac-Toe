@@ -3,8 +3,10 @@ import random
 import signal
 import time
 import copy
-from team1_iterative import Player1
-# from team1 import Player1
+
+from nakul import Player
+from team1 import Player1
+
 class TimedOutExc(Exception):
 	pass
 
@@ -26,7 +28,7 @@ class Manual_Player:
 	def __init__(self):
 		pass
 	def move(self, board, old_move, flag):
-		print 'Enter your move: <format:row column> (you\'re playing with', flag + ")"
+		print 'Enter your move: <format:row column> (you\'re playing with', flag + ")"	
 		mvp = raw_input()
 		mvp = mvp.split()
 		return (int(mvp[0]), int(mvp[1]))
@@ -49,14 +51,14 @@ class Board:
 				if j%4 == 0:
 					print "",
 				print self.board_status[i][j],
-			print
+			print 
 		print
 
 		print '==============Block State=============='
 		for i in range(4):
 			for j in range(4):
 				print self.block_status[i][j],
-			print
+			print 
 		print '======================================='
 		print
 		print
@@ -78,7 +80,7 @@ class Board:
 				for j in range(16):
 					if self.board_status[i][j] == '-' and self.block_status[i/4][j/4] == '-':
 						allowed_cells.append((i,j))
-		return allowed_cells
+		return allowed_cells	
 
 	def find_terminal_state(self):
 		#checks if the game is over(won or drawn) and returns the player who have won the game or the player who has higher blocks in case of a draw
@@ -98,11 +100,11 @@ class Board:
 					cntd += 1
 
 		for i in range(4):
-			row = bs[i]							#i'th row
+			row = bs[i]							#i'th row 
 			col = [x[i] for x in bs]			#i'th column
 			#print row,col
 			#checking if i'th row or i'th column has been won or not
-			if (row[0] =='x' or row[0] == 'o') and (row.count(row[0]) == 4):
+			if (row[0] =='x' or row[0] == 'o') and (row.count(row[0]) == 4):	
 				return (row[0],'WON')
 			if (col[0] =='x' or col[0] == 'o') and (col.count(col[0]) == 4):
 				return (col[0],'WON')
@@ -120,7 +122,7 @@ class Board:
 	def check_valid_move(self, old_move, new_move):
 		#checks if a move is valid or not given the last move
 		if (len(old_move) != 2) or (len(new_move) != 2):
-			return False
+			return False 
 		if (type(old_move[0]) is not int) or (type(old_move[1]) is not int) or (type(new_move[0]) is not int) or (type(new_move[1]) is not int):
 			return False
 		if (old_move != (-1,-1)) and (old_move[0] < 0 or old_move[0] > 16 or old_move[1] < 0 or old_move[1] > 16):
@@ -185,7 +187,7 @@ def gameplay(obj1, obj2):				#game simulator
 		temp_block_status = copy.deepcopy(game_board.block_status)
 		signal.alarm(TIME)
 
-		try:									#try to get player 1's move
+		try:									#try to get player 1's move			
 			p1_move = obj1.move(game_board, old_move, fl1)
 		except TimedOutExc:					#timeout error
 #			print e
@@ -194,10 +196,9 @@ def gameplay(obj1, obj2):				#game simulator
 			pts2 = 16
 			break
 		except Exception as e:
-			print e
 			WINNER = 'P2'
-			MESSAGE = 'INVALID MOVE1'
-			pts2 = 16
+			MESSAGE = 'INVALID MOVE'
+			pts2 = 16			
 			break
 		signal.alarm(0)
 
@@ -209,7 +210,7 @@ def gameplay(obj1, obj2):				#game simulator
 			break
 		if game_board.update(old_move, p1_move, fl1) == 'UNSUCCESSFUL':
 			WINNER = 'P2'
-			MESSAGE = 'INVALID MOVE2'
+			MESSAGE = 'INVALID MOVE'
 			pts2 = 16
 			break
 
@@ -241,10 +242,9 @@ def gameplay(obj1, obj2):				#game simulator
 			pts1 = 16
 			break
 		except Exception as e:
-			print e
 			WINNER = 'P1'
-			MESSAGE = 'INVALID MOVE1'
-			pts1 = 16
+			MESSAGE = 'INVALID MOVE'
+			pts1 = 16			
 			break
 		signal.alarm(0)
 		if (game_board.block_status != temp_block_status) or (game_board.board_status != temp_board_status):
@@ -254,7 +254,7 @@ def gameplay(obj1, obj2):				#game simulator
 			break
 		if game_board.update(old_move, p2_move, fl2) == 'UNSUCCESSFUL':
 			WINNER = 'P1'
-			MESSAGE = 'INVALID MOVE2'
+			MESSAGE = 'INVALID MOVE'
 			pts1 = 16
 			break
 
@@ -265,7 +265,7 @@ def gameplay(obj1, obj2):				#game simulator
 			WINNER = 'P2'
 			MESSAGE = 'WON'
 			break
-		elif status[1] == 'DRAW':
+		elif status[1] == 'DRAW':					
 			WINNER = 'NONE'
 			MESSAGE = 'DRAW'
 			break
@@ -304,12 +304,12 @@ if __name__ == '__main__':
 		print '                2 => Human vs. Random Player'
 		print '                3 => Human vs. Human'
 		sys.exit(1)
-
+ 
 	obj1 = ''
 	obj2 = ''
-	option = sys.argv[1]
+	option = sys.argv[1]	
 	if option == '1':
-		obj1 = Random_Player()
+		obj1 = Player()
 		obj2 = Player1()
 
 	elif option == '2':
@@ -323,5 +323,5 @@ if __name__ == '__main__':
 		sys.exit(1)
 
 	x = gameplay(obj1, obj2)
-	print "Player 1 points:", x[0]
+	print "Player 1 points:", x[0] 
 	print "Player 2 points:", x[1]

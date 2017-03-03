@@ -176,7 +176,7 @@ class Player1:
                     if((backslash.count(ply)==3 and backslash.count(nply)==0) or (forwardslash.count(ply)==3 and forwardslash.count(nply)==0)):
                         array_sum+=920#I gave it a sum of 950 whereas for the row or column sum calculation below, I have given it 900 because filling three markers in diagonal is better than filling three in same row or column
                     if((backslash.count(ply)==2 and backslash.count(nply)==0) or (forwardslash.count(ply)==2 and forwardslash.count(nply)==0)):
-                        array_sum+=82 #This is 82 whereas same case in column and rows give 80 reward. This is so,because I am valuing diagonals to be more important than rows and columns
+                            array_sum+=82 #This is 82 whereas same case in column and rows give 80 reward. This is so,because I am valuing diagonals to be more important than rows and columns
                     if((backslash.count(nply)==2 and backslash.count(ply)==1) or (forwardslash.count(nply)==2 and forwardslash.count(ply) ==1)):
                         array_sum+=6.5
                     if(backslash.count(ply)==1 or forwardslash.count(ply)==1):
@@ -200,8 +200,6 @@ class Player1:
                         if(reversetwo1case.count(nply)==0):
                             array_sum-=6.5
 
-
-
                     for i in range(4):
                         if(required_arr[i].count(ply)==4): ##me winning checking the rows
                             array_sum+=10000
@@ -216,8 +214,6 @@ class Player1:
                                 array_sum+=75
                         if(required_arr[i].count(nply)==2 and required_arr[i].count(ply)==1):
                             array_sum+=6.5
-                        # if(required_arr[i].count(ply)==1 and required_arr[i].count(nply)==0):
-                        #     array_sum+=50
                         if(required_arr[i].count(nply)==4): ##opponent winning checking the rows
                             array_sum-=10000
                         if(required_arr[i].count(ply)==3 and required_arr[i].count(nply)==1):
@@ -233,9 +229,6 @@ class Player1:
                         if(required_arr[i].count(ply)==2 and required_arr[i].count(nply)==1):
                             if(self.originalBoard[row_up+i][col_left]!=nply and self.originalBoard[row_up+i][col_left+1]!=nply and self.originalBoard[row_up+i][col_left+2]!=nply and self.originalBoard[row_up+i][col_left+3]!=nply):
                                 array_sum-=6.5
-
-                        # if(required_arr[i].count(nply)==1 and required_arr[i].count(ply)==0):
-                        #     array_sum-=50
 
 
                         if(transpose_arr[i].count(ply)==4):#doing the above eight things for the columns
@@ -256,7 +249,7 @@ class Player1:
                         if(transpose_arr[i].count(nply)==4):
                             array_sum-=10000
                         if(transpose_arr[i].count(ply)==3 and transpose_arr.count(nply)==1):
-                            if(self.originalBoard[row_up][col_left+i]!=nply and self.originalBoard[row_up+1][col_left+i]!=nply and self.originalBoard[row_up+2][col_left+i]!=nply and self.originalBoard[row_up+3][col_lefti]!=nply):
+                            if(self.originalBoard[row_up][col_left+i]!=nply and self.originalBoard[row_up+1][col_left+i]!=nply and self.originalBoard[row_up+2][col_left+i]!=nply and self.originalBoard[row_up+3][col_left+i]!=nply):
                                 array_sum-=950
                         if(transpose_arr[i].count(nply)==3 and transpose_arr[i].count(ply)==0):
                             array_sum-=900
@@ -327,7 +320,8 @@ class Player1:
             else:
                 nextMarker='x'
 # commented for testing purpose
-            if((time.time() - self.start_time)>14.8):
+
+            if((time.time() - self.start_time)>14.6):
              	value=self.utilityOfState(temp_board, old_move, nextMarker,baseUtility)
             #     print depth,time.time()-self.start_time
              	return value , bestRow, bestCol
@@ -351,8 +345,12 @@ class Player1:
                     temp_board.board_status[i][j] = currentMarker  #set the board index equal to your currentMarker
                     temp_block_status = copy.deepcopy(temp_board.block_status)
                     state = "CONTINUE"
-                    if(self.check_block_status(temp_board,old_move,new_move,currentMarker) == 'win'):
-                        state = temp_board.find_terminal_state()
+                    var=self.check_block_status(temp_board,old_move,new_move,currentMarker)
+                    if( var == 'win'):
+                        state,win = temp_board.find_terminal_state()
+                        # print "state: ",state
+                        # if(state == "CONTINUE"):
+                        #     print "CONTINUE State"
                     if(state == "CONTINUE"):
                         if(alpha<beta):  #only call if this condition exists, otherwise prune it. That's why in the else condition, "break" is used.
                             utility,tempRow,tempCol = self.minimax(temp_board,new_move,nextMarker,depth+1, -1000000000.0, 1000000000.0, alpha, beta, bestRow, bestCol,baseUtility)
@@ -386,8 +384,12 @@ class Player1:
                     temp_board.board_status[i][j]=currentMarker
                     temp_block_status = copy.deepcopy(temp_board.block_status)
                     state = "CONTINUE"
-                    if(self.check_block_status(temp_board,old_move,new_move,currentMarker) == 'win'):
-                        state = temp_board.find_terminal_state()
+                    var=self.check_block_status(temp_board,old_move,new_move,currentMarker)
+                    if (var== 'win'):
+                        state,win = temp_board.find_terminal_state()
+                        # print "state: ",state
+                        # if(state == "CONTINUE"):
+                        #     print "CONTINUE State"
                     if(state == "CONTINUE"):
                         if(alpha<beta):
                             utility,tempRow,tempCol=self.minimax(temp_board,new_move,nextMarker, depth+1, -1000000000.0, 1000000000.0, alpha, beta, bestRow, bestCol,baseUtility)
@@ -430,14 +432,14 @@ class Player1:
                 bestRow = temp1Row
                 bestCol = temp1Col
                 utility, temp1Row,temp1Col= self.minimax(temp_board, old_move, currentMarker, 0, -1000000000.0, 1000000000.0, -1000000000.0, 1000000000.0,-1,-1,baseUtility)
-                print "depth:",self.uptoMaxDepth,"utility:",utility,"bestRow:",temp1Row,"bestCol:",temp1Col
+                # print "depth:",self.uptoMaxDepth,"utility:",utility,"bestRow:",temp1Row,"bestCol:",temp1Col
                 flag+=1
                 self.uptoMaxDepth+=1
             if(flag>=2):
-                print "Depth",self.uptoMaxDepth-2
-                print "bestRow:",bestRow,"bestCol:",bestCol
+                # print "Depth",self.uptoMaxDepth-2
+                # print "bestRow:",bestRow,"bestCol:",bestCol
                 return (bestRow,bestCol) # return the bestRow and bestCol
             else:
-                print "Depth",self.uptoMaxDepth-2
-                print "bestRow:",temp1Row,"bestCol:",temp1Col
+                # print "Depth",self.uptoMaxDepth-2
+                # print "bestRow:",temp1Row,"bestCol:",temp1Col
                 return (temp1Row,temp1Col)
