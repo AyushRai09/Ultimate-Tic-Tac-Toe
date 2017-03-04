@@ -4,7 +4,7 @@ import signal
 import time
 import copy
 
-from nakul import Player
+# from nakul import Player
 from team1 import Player1
 
 class TimedOutExc(Exception):
